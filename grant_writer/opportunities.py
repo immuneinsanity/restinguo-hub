@@ -125,12 +125,12 @@ RELEVANT_FOAS = [
         "close_date": "2025-09-05",
     },
     {
-        "number": "RFA-AR-24-xxx",
-        "title": "NIAMS Rare Disease SBIR — Autoinflammatory",
-        "url": "https://www.niams.nih.gov/grants-funding/funded-research/sbir-sttr",
-        "synopsis": "NIAMS funds SBIR for musculoskeletal, skin, and rheumatic diseases including rare autoinflammatory conditions.",
+        "number": "NIAMS-SBIR",
+        "title": "NIAMS SBIR/STTR — Rheumatic & Autoinflammatory Diseases",
+        "url": "https://seed.nih.gov/NIAMS_SBIR_home",
+        "synopsis": "NIAMS participates in the NIH omnibus SBIR/STTR solicitations for musculoskeletal, rheumatic, and skin diseases — autoinflammatory conditions including interferonopathies are responsive. No disease-specific RFA exists; apply via PA-24-185 (R43) targeting NIAMS study sections.",
         "source": "Curated",
         "posted_date": "",
-        "close_date": "",
+        "close_date": "2025-09-05",
     },
 ]
