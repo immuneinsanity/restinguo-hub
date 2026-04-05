@@ -16,9 +16,18 @@ from supabase import create_client, Client
 
 def _get_config(key: str, default: str = "") -> str:
     try:
-        return st.secrets.get(key, os.getenv(key, default))
+        v = st.secrets.get(key)
+        if v:
+            return str(v)
     except Exception:
-        return os.getenv(key, default)
+        pass
+    try:
+        v = st.session_state.get(key)
+        if v:
+            return str(v)
+    except Exception:
+        pass
+    return os.getenv(key, default)
 
 
 @st.cache_resource

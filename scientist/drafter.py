@@ -20,11 +20,20 @@ OPUS_MODEL = "claude-opus-4-5"
 SONNET_MODEL = "claude-sonnet-4-6"
 
 def _get_config(key: str, default: str = "") -> str:
-    """Read from Streamlit secrets, then env, then default."""
+    """Read from Streamlit secrets, then session_state, then env."""
     try:
-        return st.secrets.get(key, os.getenv(key, default))
+        v = st.secrets.get(key)
+        if v:
+            return str(v)
     except Exception:
-        return os.getenv(key, default)
+        pass
+    try:
+        v = st.session_state.get(key)
+        if v:
+            return str(v)
+    except Exception:
+        pass
+    return os.getenv(key, default)
 
 
 def _anthropic_client() -> anthropic.Anthropic:

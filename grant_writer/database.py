@@ -1,5 +1,5 @@
-"""
-Supabase (PostgreSQL) grant database — stores draft sections and versions.
+﻿"""
+Supabase (PostgreSQL) grant database â€” stores draft sections and versions.
 """
 
 import os
@@ -42,7 +42,7 @@ def init_db() -> None:
     database_url = _cfg("DATABASE_URL")
     if not database_url:
         warnings.warn(
-            "DATABASE_URL not set — skipping table creation. "
+            "DATABASE_URL not set â€” skipping table creation. "
             "Tables must already exist in Supabase."
         )
         return
@@ -50,7 +50,7 @@ def init_db() -> None:
     try:
         import psycopg2
     except ImportError:
-        warnings.warn("psycopg2-binary not installed — skipping table creation")
+        warnings.warn("psycopg2-binary not installed â€” skipping table creation")
         return
 
     conn = psycopg2.connect(database_url)
@@ -99,7 +99,7 @@ def init_db() -> None:
     conn.close()
 
 
-# ── Grant CRUD ──────────────────────────────────────────────────────────────
+# â”€â”€ Grant CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def create_grant(name: str, foa: str = "", notes: str = "") -> int:
     now = datetime.utcnow().isoformat()
@@ -157,7 +157,7 @@ def delete_grant(grant_id: int) -> None:
         warnings.warn(f"Supabase error (delete_grant): {e}")
 
 
-# ── Draft CRUD ──────────────────────────────────────────────────────────────
+# â”€â”€ Draft CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def save_draft(
     grant_id: int,
@@ -253,7 +253,7 @@ def list_all_drafts_for_section(grant_id: int, section: str) -> list[dict]:
         return []
 
 
-# ── Opportunities ───────────────────────────────────────────────────────────
+# â”€â”€ Opportunities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def upsert_opportunity(opp: dict) -> None:
     now = datetime.utcnow().isoformat()
@@ -289,3 +289,4 @@ def list_opportunities(limit: int = 50) -> list[dict]:
     except Exception as e:
         warnings.warn(f"Supabase error (list_opportunities): {e}")
         return []
+

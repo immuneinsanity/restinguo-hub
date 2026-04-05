@@ -1,4 +1,4 @@
-"""
+﻿"""
 Supabase (PostgreSQL) database layer for the regulatory agent.
 Stores pathway status, meeting records, document metadata, and AI outputs.
 """
@@ -46,7 +46,7 @@ def init_db() -> None:
     database_url = _cfg("DATABASE_URL")
     if not database_url:
         warnings.warn(
-            "DATABASE_URL not set — skipping table creation. "
+            "DATABASE_URL not set â€” skipping table creation. "
             "Tables must already exist in Supabase."
         )
         # Still try to seed defaults via supabase-py in case tables exist
@@ -59,7 +59,7 @@ def init_db() -> None:
     try:
         import psycopg2
     except ImportError:
-        warnings.warn("psycopg2-binary not installed — skipping table creation")
+        warnings.warn("psycopg2-binary not installed â€” skipping table creation")
         return
 
     conn = psycopg2.connect(database_url)
@@ -150,9 +150,9 @@ def _seed_defaults_supabase() -> None:
     sb = _get_supabase()
 
     pathway_defaults = [
-        ("odd",  "Not Started", "Highest priority action. COPA syndrome qualifies — <500 patients worldwide, well below the 200K US threshold."),
+        ("odd",  "Not Started", "Highest priority action. COPA syndrome qualifies â€” <500 patients worldwide, well below the 200K US threshold."),
         ("rpdd", "Not Started", "COPA syndrome affects children. Rare Pediatric Disease Designation would provide Priority Review Voucher on approval."),
-        ("btd",  "Not Started", "Too early — need clinical evidence. Revisit after IND-enabling studies show strong PD signal."),
+        ("btd",  "Not Started", "Too early â€” need clinical evidence. Revisit after IND-enabling studies show strong PD signal."),
         ("ftd",  "Not Started", "Criteria: serious condition + preliminary evidence of advantage. Apply alongside or after IND submission."),
     ]
     for key, status, notes in pathway_defaults:
@@ -396,3 +396,4 @@ def get_ai_outputs(output_type: str = None) -> list[dict]:
     except Exception as e:
         warnings.warn(f"Supabase error (get_ai_outputs): {e}")
         return []
+
