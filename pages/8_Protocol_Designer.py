@@ -104,7 +104,59 @@ if "latest_protocol" in st.session_state:
     st.divider()
     st.subheader(f"📋 {protocol.get('title', 'Generated Protocol')}")
 
-    # Save button
+    # Export buttons
+    import json as _json
+
+    def _protocol_to_markdown(p: dict) -> str:
+        lines = [f"# {p.get('title', 'Protocol')}", ""]
+        lines += [f"**Objective:** {p.get('objective', '')}", ""]
+        lines += [f"**Experimental System:** {p.get('experimental_system', '')}", ""]
+        lines += [f"**Timeline:** {p.get('timeline_weeks', '?')} weeks | **Estimated Cost:** {p.get('cost_estimate', 'TBD')}", ""]
+        if p.get("copa_specific_considerations"):
+            lines += [f"> **COPA-specific note:** {p['copa_specific_considerations']}", ""]
+        lines += ["## Methodology", ""]
+        for i, step in enumerate(p.get("methodology", []), 1):
+            lines.append(f"{i}. {step}")
+        lines += ["", "## Controls", ""]
+        for k, v in p.get("controls", {}).items():
+            if v:
+                lines.append(f"- **{k.title()}:** {v}")
+        lines += ["", "## Reagents", ""]
+        for r in p.get("reagents", []):
+            cat = f" ({r.get('catalog', '')})" if r.get("catalog") else ""
+            lines.append(f"- **{r.get('name', '')}** — {r.get('source', '')}{cat}")
+            if r.get("notes"):
+                lines.append(f"  - *{r['notes']}*")
+        lines += ["", "## Readouts", ""]
+        for r in p.get("readouts", []):
+            lines.append(f"- **{r.get('assay', '')}** — {r.get('timepoint', '')} ({r.get('platform', '')})")
+        lines += ["", "## Statistics", "", p.get("statistics", "")]
+        if p.get("power_calculation"):
+            lines += ["", f"*Power calculation: {p['power_calculation']}*"]
+        lines += ["", "## Pitfalls & Mitigations", ""]
+        for pit in p.get("pitfalls", []):
+            lines += [f"- **Risk:** {pit.get('risk', '')}  ", f"  **Mitigation:** {pit.get('mitigation', '')}", ""]
+        lines += ["## Interpretation Guide", ""]
+        guide = p.get("interpretation_guide", {})
+        lines += [
+            f"- ✅ **Supports hypothesis:** {guide.get('supports_hypothesis', '')}",
+            f"- ❌ **Refutes hypothesis:** {guide.get('refutes_hypothesis', '')}",
+            f"- ⚠️ **Ambiguous:** {guide.get('ambiguous', '')}",
+            "", "## Expected Results", "", p.get("expected_results", ""),
+        ]
+        return "\n".join(lines)
+
+    md_text = _protocol_to_markdown(protocol)
+    title_slug = protocol.get("title", "protocol").replace(" ", "_")[:40]
+
+    btn_col1, btn_col2, btn_col3 = st.columns([2, 2, 4])
+    with btn_col1:
+        st.download_button("📥 Download Markdown", data=md_text,
+                           file_name=f"{title_slug}.md", mime="text/markdown")
+    with btn_col2:
+        st.download_button("📥 Download JSON", data=_json.dumps(protocol, indent=2),
+                           file_name=f"{title_slug}.json", mime="application/json")
+
     save_col, _ = st.columns([2, 6])
     with save_col:
         if st.button("💾 Save to Library", type="primary"):
@@ -209,6 +261,16 @@ else:
 
             with st.expander("View full protocol"):
                 st.json(content)
+
+            dl1, dl2, dl3 = st.columns([2, 2, 4])
+            with dl1:
+                st.download_button("📥 Markdown", data=_protocol_to_markdown(content),
+                                   file_name=f"{p['title'][:40].replace(' ','_')}.md",
+                                   mime="text/markdown", key=f"dl_md_{p['id']}")
+            with dl2:
+                st.download_button("📥 JSON", data=_json.dumps(content, indent=2),
+                                   file_name=f"{p['title'][:40].replace(' ','_')}.json",
+                                   mime="application/json", key=f"dl_json_{p['id']}")
 
             if st.button("🗑 Delete", key=f"del_protocol_{p['id']}"):
                 try:
