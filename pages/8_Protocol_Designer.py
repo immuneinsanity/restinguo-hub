@@ -2,11 +2,51 @@
 Protocol Designer — Opus-powered experimental protocol generation.
 """
 
-import json
+import json as _json
 import streamlit as st
 from scientist import database as db
 from scientist import drafter
 from scientist.prompts import PROTOCOL_DESIGN_SYSTEM, SONNET_FORMAT_PROTOCOL_SYSTEM
+
+
+def _protocol_to_markdown(p: dict) -> str:
+    lines = [f"# {p.get('title', 'Protocol')}", ""]
+    lines += [f"**Objective:** {p.get('objective', '')}", ""]
+    lines += [f"**Experimental System:** {p.get('experimental_system', '')}", ""]
+    lines += [f"**Timeline:** {p.get('timeline_weeks', '?')} weeks | **Estimated Cost:** {p.get('cost_estimate', 'TBD')}", ""]
+    if p.get("copa_specific_considerations"):
+        lines += [f"> **COPA-specific note:** {p['copa_specific_considerations']}", ""]
+    lines += ["## Methodology", ""]
+    for i, step in enumerate(p.get("methodology", []), 1):
+        lines.append(f"{i}. {step}")
+    lines += ["", "## Controls", ""]
+    for k, v in p.get("controls", {}).items():
+        if v:
+            lines.append(f"- **{k.title()}:** {v}")
+    lines += ["", "## Reagents", ""]
+    for r in p.get("reagents", []):
+        cat = f" ({r.get('catalog', '')})" if r.get("catalog") else ""
+        lines.append(f"- **{r.get('name', '')}** — {r.get('source', '')}{cat}")
+        if r.get("notes"):
+            lines.append(f"  - *{r['notes']}*")
+    lines += ["", "## Readouts", ""]
+    for r in p.get("readouts", []):
+        lines.append(f"- **{r.get('assay', '')}** — {r.get('timepoint', '')} ({r.get('platform', '')})")
+    lines += ["", "## Statistics", "", p.get("statistics", "")]
+    if p.get("power_calculation"):
+        lines += ["", f"*Power calculation: {p['power_calculation']}*"]
+    lines += ["", "## Pitfalls & Mitigations", ""]
+    for pit in p.get("pitfalls", []):
+        lines += [f"- **Risk:** {pit.get('risk', '')}  ", f"  **Mitigation:** {pit.get('mitigation', '')}", ""]
+    lines += ["## Interpretation Guide", ""]
+    guide = p.get("interpretation_guide", {})
+    lines += [
+        f"- ✅ **Supports hypothesis:** {guide.get('supports_hypothesis', '')}",
+        f"- ❌ **Refutes hypothesis:** {guide.get('refutes_hypothesis', '')}",
+        f"- ⚠️ **Ambiguous:** {guide.get('ambiguous', '')}",
+        "", "## Expected Results", "", p.get("expected_results", ""),
+    ]
+    return "\n".join(lines)
 
 st.set_page_config(page_title="Protocol Designer · Restinguo", page_icon="🔬", layout="wide")
 st.title("🔬 Protocol Designer")
@@ -105,47 +145,6 @@ if "latest_protocol" in st.session_state:
     st.subheader(f"📋 {protocol.get('title', 'Generated Protocol')}")
 
     # Export buttons
-    import json as _json
-
-    def _protocol_to_markdown(p: dict) -> str:
-        lines = [f"# {p.get('title', 'Protocol')}", ""]
-        lines += [f"**Objective:** {p.get('objective', '')}", ""]
-        lines += [f"**Experimental System:** {p.get('experimental_system', '')}", ""]
-        lines += [f"**Timeline:** {p.get('timeline_weeks', '?')} weeks | **Estimated Cost:** {p.get('cost_estimate', 'TBD')}", ""]
-        if p.get("copa_specific_considerations"):
-            lines += [f"> **COPA-specific note:** {p['copa_specific_considerations']}", ""]
-        lines += ["## Methodology", ""]
-        for i, step in enumerate(p.get("methodology", []), 1):
-            lines.append(f"{i}. {step}")
-        lines += ["", "## Controls", ""]
-        for k, v in p.get("controls", {}).items():
-            if v:
-                lines.append(f"- **{k.title()}:** {v}")
-        lines += ["", "## Reagents", ""]
-        for r in p.get("reagents", []):
-            cat = f" ({r.get('catalog', '')})" if r.get("catalog") else ""
-            lines.append(f"- **{r.get('name', '')}** — {r.get('source', '')}{cat}")
-            if r.get("notes"):
-                lines.append(f"  - *{r['notes']}*")
-        lines += ["", "## Readouts", ""]
-        for r in p.get("readouts", []):
-            lines.append(f"- **{r.get('assay', '')}** — {r.get('timepoint', '')} ({r.get('platform', '')})")
-        lines += ["", "## Statistics", "", p.get("statistics", "")]
-        if p.get("power_calculation"):
-            lines += ["", f"*Power calculation: {p['power_calculation']}*"]
-        lines += ["", "## Pitfalls & Mitigations", ""]
-        for pit in p.get("pitfalls", []):
-            lines += [f"- **Risk:** {pit.get('risk', '')}  ", f"  **Mitigation:** {pit.get('mitigation', '')}", ""]
-        lines += ["## Interpretation Guide", ""]
-        guide = p.get("interpretation_guide", {})
-        lines += [
-            f"- ✅ **Supports hypothesis:** {guide.get('supports_hypothesis', '')}",
-            f"- ❌ **Refutes hypothesis:** {guide.get('refutes_hypothesis', '')}",
-            f"- ⚠️ **Ambiguous:** {guide.get('ambiguous', '')}",
-            "", "## Expected Results", "", p.get("expected_results", ""),
-        ]
-        return "\n".join(lines)
-
     md_text = _protocol_to_markdown(protocol)
     title_slug = protocol.get("title", "protocol").replace(" ", "_")[:40]
 
