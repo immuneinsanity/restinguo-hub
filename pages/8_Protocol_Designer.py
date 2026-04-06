@@ -10,6 +10,11 @@ from scientist.prompts import PROTOCOL_DESIGN_SYSTEM, SONNET_FORMAT_PROTOCOL_SYS
 
 
 def _protocol_to_markdown(p: dict) -> str:
+    # Handle legacy format: protocol stored as raw text under 'full_protocol'
+    if "full_protocol" in p and isinstance(p["full_protocol"], str):
+        return p["full_protocol"]
+
+    # Structured JSON format
     lines = [f"# {p.get('title', 'Protocol')}", ""]
     lines += [f"**Objective:** {p.get('objective', '')}", ""]
     lines += [f"**Experimental System:** {p.get('experimental_system', '')}", ""]
